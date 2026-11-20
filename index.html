@@ -20,6 +20,7 @@
     --texto-suave: #a7abb6;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
   html { scroll-behavior: smooth; }
   body { background: var(--noite); color: var(--branco); font-family: "Inter", system-ui, sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
   a { color: inherit; }
@@ -147,6 +148,14 @@
   .req .btn { justify-self: start; border: 0; cursor: pointer; font-family: inherit; }
   .req .btn:disabled { opacity: .7; cursor: default; }
   .req .fine { margin-top: 0; }
+  .done { margin-top: 40px; max-width: 760px; background: var(--marcador); color: var(--tinta); border-radius: 24px; padding: 40px 34px; outline: none; animation: pop .45s cubic-bezier(.2,1.4,.4,1); }
+  .done .star { width: 64px; height: 64px; color: var(--tinta); }
+  .done h3 { margin-top: 16px; font-weight: 900; font-size: clamp(34px, 5vw, 48px); letter-spacing: -0.04em; line-height: 1; }
+  .done p { margin-top: 12px; font-size: 18px; max-width: 520px; }
+  .done .small { font-size: 15px; opacity: .75; }
+  .done .btn { margin-top: 22px; border-color: var(--tinta); color: var(--tinta); background: transparent; cursor: pointer; font-family: inherit; }
+  @keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .done { animation: none; } }
   footer { border-top: 1px solid var(--linha); padding: 40px 0 56px; color: var(--texto-suave); font-size: 14px; }
   footer .wrap { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; }
   footer .brand { color: #fff; }
@@ -255,6 +264,13 @@
       <button class="btn btn-y" type="submit" id="sendbtn">Enviar pedido</button>
       <p class="fine" id="reqmsg" role="status" aria-live="polite">Lemos todos os pedidos. Se a história avançar, falamos contigo.</p>
     </form>
+    <div class="done" id="done" hidden tabindex="-1">
+      <svg class="star"><use href="#estrela"/></svg>
+      <h3>Pedido enviado!</h3>
+      <p>Obrigado. Recebemos a tua história e vamos ler com calma. Se avançar, falamos contigo por email.</p>
+      <p class="small">Mandámos-te também um email de confirmação.</p>
+      <button class="btn btn-o" type="button" id="again">Enviar outro pedido</button>
+    </div>
   </div>
 </section>
 
@@ -268,6 +284,9 @@
   // pedidos enviados pelo FormSubmit (grátis, sem conta) para o email da página
   const ENDPOINT = "https://formsubmit.co/ajax/antesdafamapt@gmail.com";
   const form = document.getElementById("req"), btn = document.getElementById("sendbtn"), msg = document.getElementById("reqmsg");
+  document.getElementById("again").addEventListener("click", () => {
+    document.getElementById("done").hidden = true; form.hidden = false; form.scrollIntoView({ block: "start" });
+  });
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const d = new FormData(form);
@@ -282,15 +301,20 @@
           _template: "table", _captcha: "false",
           "Quem envia": d.get("quem"), "Artista": d.get("artista"), "Nome": d.get("nome"),
           "Email": d.get("email"), "Link": d.get("link") || "-", "História": d.get("historia"),
-          _replyto: d.get("email")
+          _replyto: d.get("email"),
+          email: d.get("email"),
+          _autoresponse: "Olá! Recebemos o teu pedido para o Antes da Fama sobre " + d.get("artista") + ". Lemos todos os pedidos com calma e, se a história avançar, respondemos-te por aqui. Obrigado! — Antes da Fama · @antesdafama_pt"
         })
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || String(j.success) === "false") throw new Error(j.message || r.status);
       form.reset();
-      msg.textContent = "Pedido enviado. Obrigado! Se a história avançar, falamos contigo.";
-      msg.style.color = "var(--marcador)";
-      btn.textContent = "Enviado ✓";
+      btn.disabled = false; btn.textContent = "Enviar pedido";
+      form.hidden = true;
+      const done = document.getElementById("done");
+      done.hidden = false;
+      done.scrollIntoView({ behavior: "smooth", block: "center" });
+      done.focus({ preventScroll: true });
     } catch (err) {
       msg.innerHTML = 'Não conseguimos enviar agora. Tenta outra vez ou escreve para <a href="mailto:antesdafamapt@gmail.com">antesdafamapt@gmail.com</a>.';
       msg.style.color = "#ff8a80";
