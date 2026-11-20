@@ -304,7 +304,7 @@
       if (m) { const l = el.closest(".f"); l.classList.add("bad"); const e2 = document.createElement("span"); e2.className = "err"; e2.textContent = m; l.appendChild(e2); first = first || el; }
     }
     if (first) {
-      alertBox.textContent = "Falta preencher alguns campos (a vermelho)."; alertBox.hidden = false;
+      alertBox.textContent = "Há campos para corrigir (a vermelho)."; alertBox.hidden = false;
       const y = first.getBoundingClientRect().top + scrollY - 110; window.scrollTo({ top: y, behavior: "smooth" }); first.focus({ preventScroll: true });
       return;
     }
