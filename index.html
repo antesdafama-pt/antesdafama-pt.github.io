@@ -250,7 +250,11 @@
     <div class="label">Pedidos</div>
     <h2>Há uma história <span class="serif">que tem de ser contada?</span></h2>
     <p class="sub">És artista, manager, editora, ou só alguém que conhece uma boa história? Manda-nos. Lemos todos os pedidos e as melhores histórias viram episódio.</p>
-    <form class="req" id="req" novalidate>
+    <form class="req" id="req" novalidate action="https://formsubmit.co/antesdafamapt@gmail.com" method="POST">
+      <input type="hidden" name="_next" value="https://antesdafama-pt.github.io/?enviado=1#pedidos">
+      <input type="hidden" name="_subject" value="Pedido de história (Antes da Fama)">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
       <div class="who">
         <label><input type="radio" name="quem" value="Sou o artista" checked><span>Sou o artista</span></label>
         <label><input type="radio" name="quem" value="Manager / editora"><span>Manager ou editora</span></label>
@@ -288,6 +292,10 @@
   // pedidos enviados pelo FormSubmit (grátis, sem conta) para o email da página
   const ENDPOINT = "https://formsubmit.co/ajax/antesdafamapt@gmail.com";
   const form = document.getElementById("req"), btn = document.getElementById("sendbtn"), msg = document.getElementById("reqmsg");
+  if (new URLSearchParams(location.search).get("enviado") === "1") {
+    form.hidden = true; document.getElementById("done").hidden = false;
+    setTimeout(() => document.getElementById("done").scrollIntoView({ block: "center" }), 50);
+  }
   document.getElementById("again").addEventListener("click", () => {
     document.getElementById("done").hidden = true; form.hidden = false; form.scrollIntoView({ block: "start" });
   });
