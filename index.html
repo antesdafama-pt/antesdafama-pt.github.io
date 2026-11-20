@@ -146,6 +146,9 @@
   .req input:focus, .req textarea:focus { outline: none; border-color: var(--marcador); }
   .req textarea { resize: vertical; }
   .req .btn { justify-self: start; border: 0; cursor: pointer; font-family: inherit; }
+  .req .err { color: #ff8a80; font-weight: 600; font-size: 14px; }
+  .req .bad input, .req .bad textarea { border-color: #ff6b5e !important; }
+  .req .alert { background: rgba(232,52,42,.14); border: 1px solid #e8342a; color: #ffd0cc; border-radius: 14px; padding: 12px 16px; font-weight: 600; font-size: 15px; }
   .req .btn:disabled { opacity: .7; cursor: default; }
   .req .fine { margin-top: 0; }
   .done { margin-top: 40px; max-width: 760px; background: var(--marcador); color: var(--tinta); border-radius: 24px; padding: 40px 34px; outline: none; animation: pop .45s cubic-bezier(.2,1.4,.4,1); }
@@ -247,7 +250,7 @@
     <div class="label">Pedidos</div>
     <h2>Há uma história <span class="serif">que tem de ser contada?</span></h2>
     <p class="sub">És artista, manager, editora, ou só alguém que conhece uma boa história? Manda-nos. Lemos todos os pedidos e as melhores histórias viram episódio.</p>
-    <form class="req" id="req">
+    <form class="req" id="req" novalidate>
       <div class="who">
         <label><input type="radio" name="quem" value="Sou o artista" checked><span>Sou o artista</span></label>
         <label><input type="radio" name="quem" value="Manager / editora"><span>Manager ou editora</span></label>
@@ -261,6 +264,7 @@
       <label class="f"><span>A história em poucas linhas</span><textarea name="historia" rows="5" required placeholder="O que é que quase ninguém sabe sobre o início?"></textarea></label>
       <label class="f"><span>O teu email (para te respondermos)</span><input name="email" type="email" required placeholder="nome@email.com"></label>
       <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+      <div class="alert" id="reqalert" role="alert" hidden></div>
       <button class="btn btn-y" type="submit" id="sendbtn">Enviar pedido</button>
       <p class="fine" id="reqmsg" role="status" aria-live="polite">Lemos todos os pedidos. Se a história avançar, falamos contigo.</p>
     </form>
@@ -289,6 +293,21 @@
   });
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    // our own validation (native bubbles don't show in Instagram's in-app browser)
+    form.querySelectorAll(".f").forEach(l => { l.classList.remove("bad"); l.querySelector(".err")?.remove(); });
+    const alertBox = document.getElementById("reqalert"); alertBox.hidden = true;
+    const checks = [["artista", "Escreve o nome do artista."], ["nome", "Escreve o teu nome."], ["historia", "Conta-nos a história em poucas linhas."], ["email", "Escreve o teu email."]];
+    let first = null;
+    for (const [name, text] of checks) {
+      const el = form.elements[name]; let v = el.value.trim(), m = v ? "" : text;
+      if (!m && name === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) m = "Esse email não parece certo.";
+      if (m) { const l = el.closest(".f"); l.classList.add("bad"); const e2 = document.createElement("span"); e2.className = "err"; e2.textContent = m; l.appendChild(e2); first = first || el; }
+    }
+    if (first) {
+      alertBox.textContent = "Falta preencher alguns campos (a vermelho)."; alertBox.hidden = false;
+      const y = first.getBoundingClientRect().top + scrollY - 110; window.scrollTo({ top: y, behavior: "smooth" }); first.focus({ preventScroll: true });
+      return;
+    }
     const d = new FormData(form);
     if (d.get("_honey")) return;
     btn.disabled = true; btn.textContent = "A enviar…";
@@ -316,8 +335,9 @@
       done.scrollIntoView({ behavior: "smooth", block: "center" });
       done.focus({ preventScroll: true });
     } catch (err) {
-      msg.innerHTML = 'Não conseguimos enviar agora. Tenta outra vez ou escreve para <a href="mailto:antesdafamapt@gmail.com">antesdafamapt@gmail.com</a>.';
-      msg.style.color = "#ff8a80";
+      const a = document.getElementById("reqalert");
+      a.innerHTML = 'Não conseguimos enviar agora. Tenta outra vez ou escreve para <a href="mailto:antesdafamapt@gmail.com">antesdafamapt@gmail.com</a>.';
+      a.hidden = false;
       btn.disabled = false; btn.textContent = "Enviar pedido";
     }
   });
