@@ -145,6 +145,7 @@
   .req input:focus, .req textarea:focus { outline: none; border-color: var(--marcador); }
   .req textarea { resize: vertical; }
   .req .btn { justify-self: start; border: 0; cursor: pointer; font-family: inherit; }
+  .req .btn:disabled { opacity: .7; cursor: default; }
   .req .fine { margin-top: 0; }
   footer { border-top: 1px solid var(--linha); padding: 40px 0 56px; color: var(--texto-suave); font-size: 14px; }
   footer .wrap { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; }
@@ -249,8 +250,10 @@
       </div>
       <label class="f"><span>Link (Instagram, Spotify ou YouTube)</span><input name="link" placeholder="https://"></label>
       <label class="f"><span>A história em poucas linhas</span><textarea name="historia" rows="5" required placeholder="O que é que quase ninguém sabe sobre o início?"></textarea></label>
-      <button class="btn btn-y" type="submit">Enviar pedido</button>
-      <p class="fine">Ao enviar, abre-se o teu email com o pedido já escrito.</p>
+      <label class="f"><span>O teu email (para te respondermos)</span><input name="email" type="email" required placeholder="nome@email.com"></label>
+      <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+      <button class="btn btn-y" type="submit" id="sendbtn">Enviar pedido</button>
+      <p class="fine" id="reqmsg" role="status" aria-live="polite">Lemos todos os pedidos. Se a história avançar, falamos contigo.</p>
     </form>
   </div>
 </section>
@@ -262,12 +265,37 @@
   </div>
 </footer>
 <script>
-  const EMAIL = "antesdafamapt@gmail.com";
-  document.getElementById("req").addEventListener("submit", (e) => {
+  // pedidos enviados pelo FormSubmit (grátis, sem conta) para o email da página
+  const ENDPOINT = "https://formsubmit.co/ajax/antesdafamapt@gmail.com";
+  const form = document.getElementById("req"), btn = document.getElementById("sendbtn"), msg = document.getElementById("reqmsg");
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const d = new FormData(e.target);
-    const body = `${d.get("quem")}\n\nArtista: ${d.get("artista")}\nNome: ${d.get("nome")}\nLink: ${d.get("link") || "-"}\n\n${d.get("historia")}`;
-    location.href = `mailto:${EMAIL}?subject=${encodeURIComponent("Pedido de história: " + d.get("artista"))}&body=${encodeURIComponent(body)}`;
+    const d = new FormData(form);
+    if (d.get("_honey")) return;
+    btn.disabled = true; btn.textContent = "A enviar…";
+    try {
+      const r = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          _subject: "Pedido de história: " + d.get("artista"),
+          _template: "table", _captcha: "false",
+          "Quem envia": d.get("quem"), "Artista": d.get("artista"), "Nome": d.get("nome"),
+          "Email": d.get("email"), "Link": d.get("link") || "-", "História": d.get("historia"),
+          _replyto: d.get("email")
+        })
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || String(j.success) === "false") throw new Error(j.message || r.status);
+      form.reset();
+      msg.textContent = "Pedido enviado. Obrigado! Se a história avançar, falamos contigo.";
+      msg.style.color = "var(--marcador)";
+      btn.textContent = "Enviado ✓";
+    } catch (err) {
+      msg.innerHTML = 'Não conseguimos enviar agora. Tenta outra vez ou escreve para <a href="mailto:antesdafamapt@gmail.com">antesdafamapt@gmail.com</a>.';
+      msg.style.color = "#ff8a80";
+      btn.disabled = false; btn.textContent = "Enviar pedido";
+    }
   });
 </script>
 </body>
