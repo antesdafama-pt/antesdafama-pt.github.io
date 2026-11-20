@@ -81,6 +81,15 @@
   .ep .badge { position: absolute; top: 16px; left: 18px; font-size: 12px; padding: .45em .9em .5em; }
   .ep.soon .ghost { position: absolute; top: 70px; left: 50%; width: 55%; transform: translateX(-50%); opacity: .12; }
 
+  .ep.live .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,13,18,.55) 0%, rgba(11,13,18,0) 18%, rgba(11,13,18,0) 42%, rgba(11,13,18,.92) 82%); }
+  .ep.live .hook, .ep.live .name, .ep.live .meta { position: relative; }
+  .ep.live .num { position: absolute; }
+  .ep.live .logo { position: absolute; top: 16px; left: 18px; display: flex; align-items: center; gap: 7px; font-weight: 900; font-size: 11px; letter-spacing: -0.03em; line-height: .9; color: #fff; }
+  .ep.live .logo .star { font-size: 22px; }
+  .ep.live .logo b { color: var(--marcador); }
+  .ep.live .hook { font-size: 30px; line-height: 1.05; }
+  .ep.live .name { font-weight: 900; letter-spacing: -0.045em; line-height: .9; font-size: 64px; color: var(--marcador); margin-top: 10px; }
+  .ep.live .meta { margin-top: 14px; font-weight: 700; font-size: 12px; letter-spacing: .14em; opacity: .8; }
   /* how */
   .paper { background: var(--papel); color: var(--tinta); }
   .paper .label { color: var(--palco); }
@@ -187,14 +196,15 @@
       <a class="ep" href="https://www.instagram.com/antesdafama_pt/" target="_blank" rel="noopener" aria-label="Episódio 1: Zarko">
         <img src="assets/ep01-zarko.jpg" alt="Capa do episódio 1: Zarko, o médico que cantava para as paredes" loading="lazy">
       </a>
-      <div class="ep soon">
-        <svg class="ghost" style="color:#fff"><use href="#estrela"/></svg>
-        <span class="chip badge">EM BREVE</span>
+      <a class="ep live" href="https://www.instagram.com/antesdafama_pt/" target="_blank" rel="noopener" aria-label="Episódio 2: Rita Rocha">
+        <img src="assets/ep02-rita.jpg" alt="Rita Rocha" loading="lazy">
+        <span class="shade"></span>
+        <span class="logo"><svg class="star"><use href="#estrela"/></svg><span>ANTES DA<br><b>FAMA</b></span></span>
         <span class="num">EP. 02</span>
         <div class="serif hook">não entrou em Medicina… nem à segunda</div>
         <div class="name">RITA ROCHA</div>
         <div class="meta">MÚSICA · PORTUGAL</div>
-      </div>
+      </a>
       <div class="ep soon">
         <svg class="ghost" style="color:#fff"><use href="#estrela"/></svg>
         <span class="chip badge">EM BREVE</span>
