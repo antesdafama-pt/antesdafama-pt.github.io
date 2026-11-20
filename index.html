@@ -267,7 +267,6 @@
       <label class="f"><span>Link (Instagram, Spotify ou YouTube)</span><input name="link" placeholder="https://"></label>
       <label class="f"><span>A história em poucas linhas</span><textarea name="historia" rows="5" required placeholder="O que é que quase ninguém sabe sobre o início?"></textarea></label>
       <label class="f"><span>O teu email (para te respondermos)</span><input name="email" type="email" required placeholder="nome@email.com"></label>
-      <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
       <div class="alert" id="reqalert" role="alert" hidden></div>
       <button class="btn btn-y" type="submit" id="sendbtn">Enviar pedido</button>
       <p class="fine" id="reqmsg" role="status" aria-live="polite">Lemos todos os pedidos. Se a história avançar, falamos contigo.</p>
@@ -317,7 +316,6 @@
       return;
     }
     const d = new FormData(form);
-    if (d.get("_honey")) return;
     btn.disabled = true; btn.textContent = "A enviar…";
     try {
       const r = await fetch(ENDPOINT, {
